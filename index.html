@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>To Leo 💌</title>
+
+<style>
+body {
+  margin: 0;
+  font-family: 'Courier New', monospace;
+  background: black;
+  color: white;
+  text-align: center;
+  overflow-x: hidden;
+}
+
+/* LOCK SCREEN */
+#lockScreen {
+  position: fixed;
+  width: 100%;
+  height: 100%;
+  background: black;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+input {
+  padding: 10px;
+  border-radius: 10px;
+  border: none;
+  text-align: center;
+}
+
+button {
+  margin-top: 15px;
+  padding: 10px 20px;
+  border-radius: 20px;
+  border: none;
+  cursor: pointer;
+  background: hotpink;
+  color: white;
+  font-weight: bold;
+}
+
+.shake {
+  animation: shake 0.4s;
+}
+
+@keyframes shake {
+  0% { transform: translateX(0); }
+  25% { transform: translateX(-8px); }
+  50% { transform: translateX(8px); }
+  75% { transform: translateX(-8px); }
+  100% { transform: translateX(0); }
+}
+
+#denied {
+  display: none;
+  font-size: 40px;
+  color: red;
+}
+
+#loading {
+  display: none;
+  font-size: 22px;
+}
+
+/* MAIN SITE */
+#mainContent {
+  display: none;
+  background: linear-gradient(-45deg, #ffd6e0, #ffe6f0, #e0f7ff, #fff0f5);
+  background-size: 400% 400%;
+  animation: gradient 12s ease infinite;
+  min-height: 100vh;
+  color: black;
+  padding: 40px 20px;
+}
+
+@keyframes gradient {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+.timeline, .box {
+  background: white;
+  padding: 20px;
+  border-radius: 20px;
+  margin: 20px auto;
+  max-width: 600px;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+}
+
+.hidden { display: none; }
+
+/* FINAL SCREEN */
+#finalScreen {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: black;
+  color: #00ffcc;
+  font-family: 'Courier New', monospace;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  text-align: center;
+  z-index: 9999;
+}
+
+#connectionText, #subscriptionText, #subLine {
+  opacity: 0;
+  transition: opacity 1s ease;
+}
+</style>
+</head>
+
+<body>
+
+<!-- LOCK SCREEN -->
+<div id="lockScreen">
+  <h1>🔐 Private Letter</h1>
+  <p id="hintText">Only one person in Australia can unlock this.</p>
+  <input type="password" id="passwordInput" placeholder="Enter password">
+  <button onclick="checkPassword()">Unlock</button>
+  <p id="error"></p>
+</div>
+
+<div id="denied">ACCESS DENIED</div>
+<div id="loading">Decrypting love letter...</div>
+
+<!-- MAIN CONTENT -->
+<div id="mainContent">
+
+<h1>To Leo 💖</h1>
+<p>It started with a 21-day-old Reddit post...</p>
+
+<div class="timeline">
+  <h2>Our Timeline 🕰️</h2>
+  <p>📍 Reddit — A random message that changed everything.</p>
+  <p>📍 Telegram — Slow replies. Dogs. Work. Life.</p>
+  <p>📍 10km Sunday Run — You ran. Sub 1, Baby!</p>
+  <p>📍  First Discord Call — The voice and the headphones--you got me ☺️</p>
+</div>
+
+<button onclick="revealFall()">When did I fall for you? 💖</button>
+<div id="fallMessage" class="hidden box">
+  There is no specific date--it's just when I realized what could have been the things you went through to be where and who you are now: the discipline, the hardwork, the grit.
+  Add some splash of your unique humor, and
+  One "Good morning" greeting that you said first,
+  and I caught myself smiling at my phone.
+</div>
+
+<div id="countdown" class="box"></div>
+
+<h2>Our Song 🎵</h2>
+<iframe width="300" height="170"
+src="https://www.youtube.com/watch?v=hBRaVI7PgZQ&list=RDhBRaVI7PgZQ&start_radio=1"
+frameborder="0"
+allowfullscreen></iframe>
+
+<div onclick="revealSecret()" style="cursor:pointer;">
+  Hi, Baby... click here
+</div>
+
+<div id="secretMessage" class="hidden box">
+  I would choose you again.
+  Even if the Reddit post was 100 days old.
+</div>
+
+<hr style="margin:40px 0;">
+
+<h2>One More Question...</h2>
+<p>Will you keep co-working with me forever? 💻💖</p>
+
+<div style="position:relative; height:120px;">
+  <button onclick="sayYes()">Yes 💖</button>
+  <button id="noBtn" style="position:absolute;">No 😤</button>
+</div>
+
+<div id="finalMessage" class="hidden box">
+  Good. Because I was never planning to stop choosing you.
+</div>
+
+</div>
+
+<!-- FINAL SCREEN -->
+<div id="finalScreen">
+  <h1 id="connectionText">Connection Established.</h1>
+  <h2 id="subscriptionText">Lifetime Subscription Activated.</h2>
+  <p id="subLine">Latency: 2 hours. Connection strength: 100%.</p>
+</div>
+
+<!-- SUCCESS SOUND -->
+<audio id="successSound" preload="auto">
+  <source src="https://assets.mixkit.co/active_storage/sfx/2571/2571-preview.mp3" type="audio/mpeg">
+</audio>
+
+<script>
+
+const correctPassword = "HAEM"; // CHANGE
+let attempts = 0;
+
+function checkPassword() {
+  const input = document.getElementById("passwordInput");
+  const value = input.value;
+
+  if (value === correctPassword) {
+    unlockSequence();
+  } else {
+    attempts++;
+    input.classList.add("shake");
+    setTimeout(() => input.classList.remove("shake"), 400);
+    document.getElementById("error").innerText = "Wrong password.";
+
+    if (attempts === 2) {
+      document.getElementById("hintText").innerText =
+        "Hint: We should only crave this during Christmas! 👀";
+    }
+
+    if (attempts >= 3) {
+      fakeDenied();
+    }
+  }
+}
+
+function fakeDenied() {
+  document.getElementById("lockScreen").style.display = "none";
+  const denied = document.getElementById("denied");
+  denied.style.display = "block";
+
+  setTimeout(() => {
+    denied.innerText = "Just kidding 😌";
+  }, 1500);
+
+  setTimeout(() => {
+    unlockSequence();
+  }, 2500);
+}
+
+function unlockSequence() {
+  document.getElementById("denied").style.display = "none";
+  document.getElementById("lockScreen").style.display = "none";
+
+  const loading = document.getElementById("loading");
+  loading.style.display = "block";
+
+  setTimeout(() => {
+    loading.style.display = "none";
+    document.getElementById("mainContent").style.display = "block";
+  }, 2000);
+}
+
+const startDate = new Date("2025-08-27"); // CHANGE DATE
+const today = new Date();
+const diffTime = today - startDate;
+const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+document.getElementById("countdown").innerText =
+  "Days since we met: " + diffDays + " 💞";
+
+function revealFall() {
+  document.getElementById("fallMessage").style.display = "block";
+}
+
+function revealSecret() {
+  document.getElementById("secretMessage").style.display = "block";
+}
+
+const noBtn = document.getElementById("noBtn");
+noBtn.addEventListener("mouseover", () => {
+  const x = Math.random() * 300;
+  const y = Math.random() * 80;
+  noBtn.style.left = x + "px";
+  noBtn.style.top = y + "px";
+});
+
+function sayYes() {
+  launchHearts();
+
+  setTimeout(() => {
+    document.getElementById("mainContent").style.display = "none";
+    const screen = document.getElementById("finalScreen");
+    screen.style.display = "flex";
+
+    const sound = document.getElementById("successSound");
+    sound.volume = 0.4;
+    sound.play();
+
+    setTimeout(() => {
+      document.getElementById("connectionText").style.opacity = 1;
+    }, 800);
+
+    setTimeout(() => {
+      document.getElementById("subscriptionText").style.opacity = 1;
+    }, 1600);
+
+    setTimeout(() => {
+      document.getElementById("subLine").style.opacity = 1;
+    }, 2400);
+
+  }, 1500);
+}
+
+function launchHearts() {
+  for (let i = 0; i < 20; i++) {
+    const heart = document.createElement("div");
+    heart.innerHTML = "💖";
+    heart.style.position = "fixed";
+    heart.style.left = Math.random() * 100 + "vw";
+    heart.style.top = "100vh";
+    heart.style.fontSize = "20px";
+    heart.style.animation = "floatUp 3s linear forwards";
+    document.body.appendChild(heart);
+    setTimeout(() => heart.remove(), 3000);
+  }
+}
+
+const style = document.createElement('style');
+style.innerHTML = `
+@keyframes floatUp {
+  from { transform: translateY(0); opacity: 1; }
+  to { transform: translateY(-120vh); opacity: 0; }
+}`;
+document.head.appendChild(style);
+
+</script>
+
+</body>
+</html>
